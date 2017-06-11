@@ -1,0 +1,29 @@
+{
+  "name": "stock_chart",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "engines": {
+    "node": "7.8.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ColeTrammer/stock_chart.git"
+  },
+  "author": "ColeTrammer",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ColeTrammer/stock_chart/issues"
+  },
+  "homepage": "https://github.com/ColeTrammer/stock_chart#readme",
+  "dependencies": {
+    "express": "^4.15.3",
+    "http": "0.0.0",
+    "pug": "^2.0.0-rc.2",
+    "url": "^0.11.0",
+    "ws": "^3.0.0"
+  }
+}
