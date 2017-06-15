@@ -19,3 +19,23 @@ footer a, p {
 footer a:hover {
     color: #FFFFFF;
 }
+
+text {
+    fill: #CFCFCF;
+}
+
+svg g g g line, svg g g path {
+    stroke: #CFCFCF;
+}
+
+.line {
+    stroke-width: 3px;
+}
+
+form {
+    margin-bottom: 20px;
+}
+
+.stock {
+    padding-bottom: 20px;
+}

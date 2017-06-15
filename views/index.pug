@@ -1,9 +1,12 @@
 extends layout.pug
 
 block content
-    .form-group
-        label Enter a stock symbol: 
-        input.form-control#symbol(type="text")
-    button.btn.btn-primary#submit Submit
-    #display
+    svg
+    label Enter a stock symbol to track: 
+    form
+        .input-group
+            input.form-control#symbol(type="text")
+            span.input-group-btn
+                button.btn.btn-primary#submit Add
+    #display.row
     
