@@ -1,3 +1,7 @@
+if (process.env.NODE_ENV !== "production") {
+    require("dotenv").load();
+}
+
 const express = require("express");
 const path = require("path");
 const WebSocket = require("ws");
@@ -11,22 +15,44 @@ app.set("port", process.env.PORT || 3000);
 
 app.use("/public", express.static(path.join(__dirname, "public")));
 
-app.use((req, res) => {
-  res.render("index");
-});
-
 const server = http.createServer(app);
 const wss = new WebSocket.Server({server});
 
+let currentStocks = {data: [], type: "initial"};
+
 wss.on("connection", (ws, req) => {
-    ws.on("message", (data) => {
-        data = JSON.parse(data);
+    ws.on("message", (symbol) => {
+        getInfo(symbol, (data) => {
+            currentStocks.data.push(data);
+            wss.clients.forEach((client) => {
+                if (client.readyState === WebSocket.OPEN) {
+                    send(client, data);
+                }
+            });
+        });
     });
 
-    send(ws, {data: "data"});
+    send(ws, currentStocks);
 });
 
+require("./routes.js")(app);
+
 server.listen(app.get("port"));
+
+function getInfo(symbol, cb) {
+    http.request({
+        host: "www.alphavantage.co",
+        path: `/query?apikey=${process.env.ALPHA_VANTAGE_KEY}&function=TIME_SERIES_DAILY&symbol=${symbol}`
+    }, (response) => {
+        let data = "";
+        response.on("data", (chunk) => {
+            data += chunk;
+        });
+        response.on("end", () => {
+            cb(JSON.parse(data));
+        });
+    }).end();
+}
 
 function send(ws, obj) {
     ws.send(JSON.stringify(obj));

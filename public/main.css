@@ -1,0 +1,21 @@
+body {
+    padding: 70px 0;
+    background-color: #444444;
+    color: #DDD;
+}
+
+nav {
+    font-size: 18px;
+}
+
+footer {
+    padding: 5px 0px;
+}
+
+footer a, p {
+    color: #7D7D7D;
+}
+
+footer a:hover {
+    color: #FFFFFF;
+}

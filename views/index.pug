@@ -1,6 +1,8 @@
-doctype html
-head
-    script(src="/public/main.js")
-body
-    p Hello World!
+extends layout.pug
+
+block content
+    .form-group
+        label Enter a stock symbol: 
+        input.form-control#symbol(type="text")
+    button.btn.btn-primary#submit Submit
     
