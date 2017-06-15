@@ -18,7 +18,7 @@ app.use("/public", express.static(path.join(__dirname, "public")));
 const server = http.createServer(app);
 const wss = new WebSocket.Server({server});
 
-let currentStocks = {data: [], type: "initial"};
+let stocks = {data: [], type: "initial"};
 
 wss.on("connection", (ws, req) => {
     ws.on("message", (request) => {
@@ -26,7 +26,7 @@ wss.on("connection", (ws, req) => {
         const symbol = request.symbol;
         if (request.type === "add") {
             getInfo(symbol, (data) => {
-                currentStocks.data.push(data);
+                stocks.data.push(data);
                 wss.clients.forEach((client) => {
                     if (client.readyState === WebSocket.OPEN) {
                         data.type = "add";
@@ -34,10 +34,24 @@ wss.on("connection", (ws, req) => {
                     }
                 });
             });
+        } else if (request.type === "remove") {
+            stocks.data.forEach((stock, i) => {
+                if (stock["Meta Data"]["2. Symbol"] === request.symbol) {
+                    stocks.data.splice(i, 1);
+                    wss.clients.forEach((client) => {
+                        if (client.readyState === WebSocket.OPEN) {
+                            send(client, {
+                                type: "remove",
+                                symbol: request.symbol
+                            });
+                        }
+                    });
+                }
+            });
         }
     });
 
-    send(ws, currentStocks);
+    send(ws, stocks);
 });
 
 require("./routes.js")(app);
