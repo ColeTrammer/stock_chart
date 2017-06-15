@@ -22,7 +22,7 @@ html(lang="en")
                         span.icon-bar
                         span.icon-bar
                     a.navbar-brand(href="/") Stocks
-        .container
+        .container-fluid
             if successMessages
                 each m in successMessages
                     div.alert.alert-success.alert-dismissible
@@ -33,7 +33,10 @@ html(lang="en")
                     div.alert.alert-danger.alert-dismissible
                         button.close(data-dismiss="alert") #[span(aria-hidden=true) &times]
                         p= m
-            block content
+            
+            .row
+                .col-md-10.offset-md-1
+                    block content
         footer.navbar-inverse.navbar-fixed-bottom.navbar.text-center
             p Stock chart made by Cole Trammer with Alpha Vantage Api<br>
             a(target="_blank" href="https://github.com/ColeTrammer/stock_chart") GitHub

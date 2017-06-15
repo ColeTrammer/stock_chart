@@ -1,13 +1,18 @@
 $(document).ready(() => {
-    /*d3 code to graph the stocks*/
+    /*d3 code to graph the stocks
+    redraws the entire thing each time
+    to make sure that the axes are
+    properly aligned*/
+
     function graph(stocks) {
         const width = 1000;
         const height = 400;
+        let interval;
 
         const margin = {
             top: 30,
             bottom: 30,
-            right: 30,
+            right: 0,
             left: 60
         };
 
@@ -18,6 +23,65 @@ $(document).ready(() => {
         const g = svg.append("g")
             .attr("transform", `translate(${[margin.left, margin.right]})`)
             .attr("id", "lines");
+
+        const svgBox = document.getElementById("chart").getBoundingClientRect();
+        const xOffset = svgBox.x + margin.left;
+        const yOffset = svgBox.y + margin.top;
+
+        g.append("rect")
+            .attr("fill", "rgba(0, 0, 0, 0)")
+            .attr("width", width)
+            .attr("height", height)
+            .attr("x", 0)
+            .attr("y", 0)
+            .on("mouseover", (d) => {
+                const mouse = d3.mouse(document.getElementById("lines"));
+                const time = pixelToTime(mouse[0]);
+                let vals = [];
+                for (let j = 0; j < stocks.length; j++) {
+                    const stock = stocks[j];
+                    let diff = 0;
+                    let index = 0;
+                    /*find the closest time by finding the differences between the times
+                    and noting when it increases, since it means that the previous one is closer
+                    add one to the current index to get the correct one
+                    (the data is in reverse time order)*/
+                    for (let i = 0; i < stock.data.length; i++) {
+                        const timeCheck = stock.data[i].time;
+                        let newDiff = timeCheck.getTime() - time.getTime();
+                        if (newDiff > diff) {
+                            index = i + 1;
+                        } else {
+                            diff = newDiff;
+                        }
+                    }
+                    if (stock.data[index]) {
+                        vals.push([stock, index]);
+                        g.append("circle")
+                           .attr("r", 5)
+                           .attr("cx", x(stock.data[index].time))
+                           .attr("cy", y(stock.data[index].price))
+                           .attr("fill", "steelblue")
+                           .attr("stroke", "#FFF")
+                           .attr("stroke-width", "0.5px")
+                           .attr("id", `${sym(stock)}-c`);
+                    }
+                }
+                vals = vals.sort((a, b) => b[0].data[b[1]].price - a[0].data[a[1]].price);
+                $("#info").html(vals.map((d) => `${sym(d[0])}- $${d[0].data[d[1]].price}`).join("<br>"));
+            })
+            .on("mouseout", (d) => {
+                clearInterval(interval);
+                for (let i =  0; i < stocks.length; i++) {
+                    const stock = stocks[i];
+                    $(`#${sym(stock)}-c`).remove();
+                }
+                $("#info").html("");
+            });
+
+        const pixelToTime = d3.scaleTime()
+            .range([new Date(), new Date()])
+            .domain([0, width])
 
         const x = d3.scaleTime()
             .range([0, width])
@@ -49,6 +113,7 @@ $(document).ready(() => {
             newYExtent[0] = Math.min(y.domain()[0], newYExtent[0]);
             newYExtent[1] = Math.max(y.domain()[1], newYExtent[1]);
 
+            pixelToTime.range(newXExtent.map((d) => new Date(d)));
             x.domain(newXExtent);
             y.domain(newYExtent);
         }
@@ -102,7 +167,6 @@ $(document).ready(() => {
                 }
             });
         }
-        console.log(stocks);
     });
 
     $("#submit").click((e) => {
