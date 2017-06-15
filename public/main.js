@@ -6,7 +6,7 @@ socket.addEventListener("message", (e) => {
     const data = parse(e);
     if (data.type === "initial") {
         stocks = data.data;
-    } else {
+    } else if (data.type === "add") {
         stocks.push(data);
     }
     console.log(stocks);
@@ -14,9 +14,17 @@ socket.addEventListener("message", (e) => {
 
 $(document).ready(() => {
     $("#submit").click((e) => {
-        socket.send($("#symbol").val());
+        const symbol = $("#symbol").val();
+        send({
+            type: "add",
+            symbol: symbol
+        });
     });
 });
+
+function send(obj) {
+    socket.send(JSON.stringify(obj));
+}
 
 function parse(e) {
     return JSON.parse(e.data);

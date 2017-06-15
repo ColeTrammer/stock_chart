@@ -21,15 +21,20 @@ const wss = new WebSocket.Server({server});
 let currentStocks = {data: [], type: "initial"};
 
 wss.on("connection", (ws, req) => {
-    ws.on("message", (symbol) => {
-        getInfo(symbol, (data) => {
-            currentStocks.data.push(data);
-            wss.clients.forEach((client) => {
-                if (client.readyState === WebSocket.OPEN) {
-                    send(client, data);
-                }
+    ws.on("message", (request) => {
+        request = JSON.parse(request);
+        const symbol = request.symbol;
+        if (request.type === "add") {
+            getInfo(symbol, (data) => {
+                currentStocks.data.push(data);
+                wss.clients.forEach((client) => {
+                    if (client.readyState === WebSocket.OPEN) {
+                        data.type = "add";
+                        send(client, data);
+                    }
+                });
             });
-        });
+        }
     });
 
     send(ws, currentStocks);
